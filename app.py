@@ -6,7 +6,7 @@ from sanic.log import logger
 from sanic.response import file_stream, html, redirect, text
 
 from ihautils.ihacache import ihateanimeCache
-from ihautils.utils import generate_custom_code, ihaSanic, read_files
+from ihautils.utils import generate_custom_code, ihaSanic, read_files, humanbytes
 from routes.file_upload import UploadAPI
 from routes.shortlink import ShortlinkAPI
 
@@ -35,6 +35,19 @@ settings = dict(
 app.config.update(settings)
 app.jinja2env = env
 app.config.FORWARDED_SECRET = "wjwhjzppqzemf3wn8v6fkk2arptwng6s"  # Used for reverse proxy
+
+
+def render_template(template_name: str, *args, **kwargs):
+    """Render HTML webpage from a template.
+
+    :param template_name: html name from defined templates folder
+    :type template_name: str
+    :return: HTML Response ready.
+    :rtype: HTTPResponse
+    """
+    html_template = app.jinja2env.get_template(template_name)
+    rendered = html_template.render(*args, **kwargs)
+    return html(rendered)
 
 
 @app.listener("before_server_start")
@@ -182,7 +195,16 @@ async def populate_db(request):
 
 @app.route("/")
 async def home_page(request):
-    return html("&lt;/&gt;")
+    return render_template(
+        "home.html",
+        HOST_NAME=app.config.HOST_NAME,
+        HTTPS_MODE=app.config.HTTPS_MODE,
+        FSIZE_LIMIT=humanbytes(
+            app.config.FILESIZE_LIMIT * 1024 if app.config.FILESIZE_LIMIT is not None else None
+        ),
+        BLACKLIST_EXTENSION=app.config.BLACKLISTED_EXTENSION,
+        BLACKLIST_CTYPES=app.config.BLACKLISTED_CONTENT_TYPE,
+    )
 
 
 if __name__ == "__main__":
