@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="theme-color" content="#DC603A">
+    <title>{{ filename }} - ihaPaste</title>
+    <meta name="description" content="{{ snippets }} ...">
+    <meta property="og:title" content="ihaPaste">
+    <meta property="og:description" content="{{ snippets }} ...">
+    <link rel="stylesheet" href="/static/atom-one-dark.css">
+    <script src="/static/highlight.pack.js"></script>
+    <script src="/static/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<pre><code id="code" class="{{ determine_type }}">
+{{ code_data }}
+</code></pre>
+<script>
+    hljs.registerAliases("vpy", {
+        languageName: 'python'
+    });
+    hljs.initHighlightingOnLoad();
+    hljs.initLineNumbersOnLoad();
+</script>
+</body>
+</html>
