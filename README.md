@@ -90,8 +90,8 @@ Explanation:
 - **UPLOAD_PATH**: where to put your uploads path.
 - **ADMIN_PASSWORD**: admin password, please modify this.
 - **FILENAME_LENGTH**: the randomized filename length.
-- **FILESIZE_LIMIT**: upload size limit for normal user. (can be set to `None` for no limit.)
-- **FILESIZE_LIMIT_ADMIN**: upload size limit for someone using admin. (can be set to `None` for no limit.)
+- **FILESIZE_LIMIT**: upload size limit (in kilobytes) for normal user. (can be set to `None` for no limit.)
+- **FILESIZE_LIMIT_ADMIN**: upload size limit (in kilobytes) for someone using admin password (can be set to `None` for no limit.)
 - **BLACKLISTED_EXTENSION**: Blacklisted extension.
 - **BLACKLISTED_CONTENT_TYPE**: Blacklisted content-type.
 
