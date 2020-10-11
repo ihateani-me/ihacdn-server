@@ -87,3 +87,26 @@ def generate_custom_code(
         letters_used += ascii_uppercase
     generated = "".join([random.choice(letters_used) for _ in range(length)])  # nosec
     return generated
+
+
+def humanbytes(B):
+    if B is None:
+        return B
+    B = float(B)
+    KB = float(1024)
+    MB = float(KB ** 2)  # 1,048,576
+    GB = float(KB ** 3)  # 1,073,741,824
+    TB = float(KB ** 4)  # 1,099,511,627,776
+    PB = float(KB ** 5)
+
+    if B < KB:
+        return "{0} {1}".format(B, "Bytes" if 0 == B > 1 else "Byte")
+    elif KB <= B < MB:
+        return "{0:.2f} KiB".format(B / KB)
+    elif MB <= B < GB:
+        return "{0:.2f} MiB".format(B / MB)
+    elif GB <= B < TB:
+        return "{0:.2f} GiB".format(B / GB)
+    elif TB <= B < PB:
+        return "{0:.2f} TiB".format(B / TB)
+    return "{0:.2f} PiB".format(B / PB)
