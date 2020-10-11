@@ -10,8 +10,11 @@ A simple file hosting using Sanic framework.<br>
 - Image/Files/Text support with blacklisting.
 - Auto determining if it's text or files without user defining itself.
 - Filesize limit support. **[Can be disabled.]**
+- [Customizable](#configuration).
 - Code highlighting support using **highlight.js**
 - Shortlink generation support.
+- You don't need the extension to access your files/code.
+- You could manually set what hljs should use by adding extension to the url.
 
 ## Using the filehosting.
 There's 2 POST endpoint:
