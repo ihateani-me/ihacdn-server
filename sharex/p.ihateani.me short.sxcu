@@ -1,0 +1,11 @@
+﻿{
+  "Version": "13.2.1",
+  "Name": "p.ihateani.me short",
+  "DestinationType": "URLShortener",
+  "RequestMethod": "POST",
+  "RequestURL": "https://p.ihateani.me/short",
+  "Body": "MultipartFormData",
+  "Arguments": {
+    "url": "$input$"
+  }
+}
