@@ -73,9 +73,9 @@
     {% endif %}
     <code>Shorten URL via POST:</code><br>
     {% if HTTPS_MODE %}
-    <code class="cb-example">curl -X POST -F "url=http://your.long/ass/url/that/you/want/to/shorten" https://{{ HOST_NAME }}/upload</code><br><br>
+    <code class="cb-example">curl -X POST -F "url=http://your.long/ass/url/that/you/want/to/shorten" https://{{ HOST_NAME }}/short</code><br><br>
     {% else %}
-    <code class="cb-example">curl -X POST -F "url=http://your.long/ass/url/that/you/want/to/shorten" http://{{ HOST_NAME }}/upload</code><br><br>
+    <code class="cb-example">curl -X POST -F "url=http://your.long/ass/url/that/you/want/to/shorten" http://{{ HOST_NAME }}/short</code><br><br>
     {% endif %}
     <code>
         <b>SXCU (ShareX) File:</b><br>
