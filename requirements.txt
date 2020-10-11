@@ -1,0 +1,6 @@
+ujson==1.35
+sanic
+aiofiles
+diskcache
+python-magic
+jinja2
