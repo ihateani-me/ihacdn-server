@@ -1,0 +1,6 @@
+__pycache__
+.vscode
+.mypy_cache
+uploads/
+diskcache/
+diskcached/
