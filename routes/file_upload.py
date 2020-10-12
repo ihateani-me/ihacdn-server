@@ -3,16 +3,17 @@ import os
 import magic
 from ihautils.utils import generate_custom_code, ihaSanic, write_files
 from sanic.response import text
+from sanic.exceptions import abort
 from sanic.views import HTTPMethodView
 
 
 def valid_file_type(file_name, file_type, blacklist_ext, blacklist_ctypes):
     file_name_type = file_name.split(".")[-1]
     if file_name_type in blacklist_ext:
-        return False
+        return False, file_name_type
     if file_type in blacklist_ctypes:
-        return False
-    return True
+        return False, file_type
+    return True, file_name_type
 
 
 def do_use_code_template(file_type):
@@ -57,17 +58,15 @@ class UploadAPI(HTTPMethodView):
 
         filename = await _generate_filename()
         file_name_type = upload_file.name.split(".")[-1]
-        if (
-            not valid_file_type(
-                upload_file.name, mimetype, appc["BLACKLISTED_EXTENSION"], appc["BLACKLISTED_CONTENT_TYPE"],
-            )
-            and not is_admin
-        ):
-            return text("Extension or content-type is on blacklist.", 415)
+        is_valid_type, invalid_type_data = valid_file_type(
+            upload_file.name, mimetype, appc["BLACKLISTED_EXTENSION"], appc["BLACKLISTED_CONTENT_TYPE"],
+        )
+        if not is_valid_type and not is_admin:
+            abort(415, invalid_type_data)
 
         fs_limit = appc["FILESIZE_LIMIT"] if not is_admin else appc["FILESIZE_LIMIT_ADMIN"]
         if not valid_file_size(upload_file.body, fs_limit):
-            return text("File suprassed size limit.", 413)
+            abort(413, upload_file.name)
 
         is_code = do_use_code_template(mimetype)
         final_url = "https" if appc["HTTPS_MODE"] else "http"
