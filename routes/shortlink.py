@@ -11,6 +11,9 @@ class ShortlinkAPI(HTTPMethodView):
         if not url_data:
             return text("No URL provided", 400)
 
+        if not app.validate_url(url_data):
+            return text("Invalid URL format.", 400)
+
         async def _generate_filename():
             while True:
                 filename = generate_custom_code(appc["FILENAME_LENGTH"], True)

@@ -1,12 +1,13 @@
 import os
 import random
+import re
 from string import ascii_lowercase, ascii_uppercase, digits
 from typing import Any
 
 import aiofiles
 import ujson
-from sanic import Sanic
 from jinja2 import Environment
+from sanic import Sanic
 
 from .ihacache import ihateanimeCache
 
@@ -19,6 +20,23 @@ class ihaSanic(Sanic):
 
         self.dcache: ihateanimeCache
         self.jinja2env: Environment
+
+        self._url_regex = re.compile(
+            r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})",  # noqa: E501
+            re.IGNORECASE,
+        )
+
+    def validate_url(self, url_to_validate: str) -> bool:
+        """Validate if URL is a valid URL format
+
+        :param url_to_validate: url to validated
+        :type url_to_validate: str
+        :return: is URL valid or not.
+        :rtype: bool
+        """
+        if re.match(self._url_regex, url_to_validate) is None:
+            return False
+        return True
 
 
 async def read_files(fpath, dont_convert=False):
