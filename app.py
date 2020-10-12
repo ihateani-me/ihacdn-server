@@ -1,12 +1,16 @@
 import os
+from platform import python_version
 
 from jinja2 import Environment, PackageLoader
-from sanic.exceptions import abort
+from sanic import __version__ as sanic_version
+from sanic.exceptions import (NotFound, PayloadTooLarge, SanicException, abort,
+                              add_status_code)
 from sanic.log import logger
 from sanic.response import file_stream, html, redirect, text
 
 from ihautils.ihacache import ihateanimeCache
-from ihautils.utils import generate_custom_code, ihaSanic, read_files, humanbytes
+from ihautils.utils import (generate_custom_code, humanbytes, ihaSanic,
+                            read_files)
 from routes.file_upload import UploadAPI
 from routes.shortlink import ShortlinkAPI
 
@@ -30,6 +34,10 @@ settings = dict(
     FILESIZE_LIMIT_ADMIN=None,  # Set to None for no limit.
     BLACKLISTED_EXTENSION=["exe", "sh", "msi", "bat", "dll", "com"],
     BLACKLISTED_CONTENT_TYPE=[
+        "text/x-sh",
+        "text/x-msdos-batch",
+        "application/x-dosexec",
+        "application/x-msdownload",
         "application/vnd.microsoft.portable-executable",
         "application/x-msi",
         "application/x-msdos-program",
@@ -39,6 +47,17 @@ settings = dict(
 app.config.update(settings)
 app.jinja2env = env
 app.config.FORWARDED_SECRET = "wjwhjzppqzemf3wn8v6fkk2arptwng6s"  # Used for reverse proxy
+
+
+# Exception Handling.
+@add_status_code(410)
+class GoneForever(SanicException):
+    pass
+
+
+@add_status_code(415)
+class UnsupportedMediaError(SanicException):
+    pass
 
 
 def render_template(template_name: str, *args, **kwargs):
@@ -52,6 +71,57 @@ def render_template(template_name: str, *args, **kwargs):
     html_template = app.jinja2env.get_template(template_name)
     rendered = html_template.render(*args, **kwargs)
     return html(rendered)
+
+
+@app.middleware("response")
+async def response_headers_intercept(request, response):
+    response.headers["Server"] = f"Sanic-{sanic_version} Python/{python_version()}"
+    response.headers["x-xss-protection"] = "1; mode=block"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, HEAD"
+
+
+@app.exception(PayloadTooLarge)
+async def payload_large_handling(request, exception):
+    text_data = r"""/usr/bin/../lib/gcc/x86_64-w64-mingw32/9.3-win32/../../../../usr/bin/as: ihaCDN/routes/FileHandler.o: too many sections (37616)
+ihaCDN/request/upload/{{ FN }}: Assembler messages:
+ihaCDN/request/upload/{{ FN }}: Fatal error: can't write ihaCDN/routes/FileHandler.o: File too big (Maximum allowed is {{ FS }})
+    """  # noqa: E501
+    text_data = text_data.replace(r"{{ FS }}", humanbytes(app.config.FILESIZE_LIMIT * 1024))
+    text_data = text_data.replace(r"{{ FN }}", str(exception))
+    return text(text_data, 413)
+
+
+@app.exception(UnsupportedMediaError)
+async def blacklisted_extension(request, exception):
+    text_data = f"""[InvalidCastException: '{str(exception)}' is not allowed.]
+ValidateExteension() in FileHandler.cs:65
+ASP.UploadRoutes.Page_Load(Object sender, EventArgs e) in UploadRoutes.ascx:20
+System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e) +15
+System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e) +36
+System.Web.UI.Control.OnLoad(EventArgs e) +102
+System.Web.UI.Control.LoadRecursive() +47
+System.Web.UI.Control.LoadRecursive() +131
+System.Web.UI.Control.LoadRecursive() +131
+System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint) +1064
+    """  # noqa: E501
+    return text(text_data, 413)
+
+
+@app.exception(GoneForever)
+@app.exception(NotFound)
+async def file_deleted_handling(request, exception):
+    text_data = f"""System.IO.FileNotFoundException: Could not find file '{request.path}' in server filesystem.
+File name: '{request.path}'
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.StreamReader..ctor(String path, Encoding encoding, Boolean detectEncodingFromByteOrderMarks, Int32 bufferSize, Boolean checkHost)
+   at System.IO.File.InternalReadAllText(String path, Encoding encoding, Boolean checkHost)
+   at System.IO.File.ReadAllText(String path)
+   at ConsoleApp.Program.Main(String[] args) in FileHandling.cs:line 182
+    """  # noqa: E501
+    return text(text_data, exception.status_code)
 
 
 @app.listener("before_server_start")
@@ -134,6 +204,9 @@ async def check_path(request, file_path):
         return redirect(get_data["target"])
     elif get_data["type"] == "file":
         logger.info(f"key {filename} are file type, sending file.")
+        if not os.path.isfile(get_data["path"]):
+            await app.dcache.delete(filename)
+            abort(410)
         try:
             return await file_stream(get_data["path"], mime_type=get_data["mimetype"])
         except Exception:
@@ -218,4 +291,4 @@ async def home_page(request):
 if __name__ == "__main__":
     logger.info("Starting server...")
     logger.info(f"Super secret forwarding code: {app.config.FORWARDED_SECRET}")
-    app.run(host="127.0.0.1", port=6900, debug=False, access_log=True)
+    app.run(host="127.0.0.1", port=6900, debug=False, access_log=True, auto_reload=True)
