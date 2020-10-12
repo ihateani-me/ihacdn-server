@@ -3,14 +3,12 @@ from platform import python_version
 
 from jinja2 import Environment, PackageLoader
 from sanic import __version__ as sanic_version
-from sanic.exceptions import (NotFound, PayloadTooLarge, SanicException, abort,
-                              add_status_code)
+from sanic.exceptions import NotFound, PayloadTooLarge, SanicException, abort, add_status_code
 from sanic.log import logger
 from sanic.response import file_stream, html, redirect, text
 
 from ihautils.ihacache import ihateanimeCache
-from ihautils.utils import (generate_custom_code, humanbytes, ihaSanic,
-                            read_files)
+from ihautils.utils import generate_custom_code, humanbytes, ihaSanic, read_files
 from routes.file_upload import UploadAPI
 from routes.shortlink import ShortlinkAPI
 
@@ -25,6 +23,7 @@ settings = dict(
     UPLOAD_PATH=os.path.join(app_cwd, "uploads"),
     ADMIN_PASSWORD="MODIFY_THIS",
     FILENAME_LENGTH=8,
+    DISCORD_WEBHOOK="https://discord.com/webhooks/XXXXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     # File retention settings
     ENABLE_FILE_RETENTION=True,  # If enabled, file will be deleted with calculation.
     FILE_RETENTION_MIN_AGE=30,  # Minimum days for file retention.

@@ -17,6 +17,7 @@ A simple file hosting using Sanic framework.<br>
 - You could manually set what hljs should use by adding extension to the url.
 - [File retention](#file-retention) support<br>
 Formula: `min_days + (-max_days + min_days) * (file_size / filesize_limit - 1) ** 5`
+- Discord Webhook Notification Support.
 
 ## Using the filehosting.
 There's 2 POST endpoint:
@@ -70,6 +71,7 @@ settings = dict(
     UPLOAD_PATH=os.path.join(app_cwd, "uploads"),
     ADMIN_PASSWORD="MODIFY_THIS",
     FILENAME_LENGTH=8,
+    DISCORD_WEBHOOK="https://discord.com/webhooks/XXXXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     # File retention settings
     ENABLE_FILE_RETENTION=True,  # If enabled, file will be deleted with calculation.
     FILE_RETENTION_MIN_AGE=30,  # Minimum days for file retention.

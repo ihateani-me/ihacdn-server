@@ -4,6 +4,7 @@ import re
 from string import ascii_lowercase, ascii_uppercase, digits
 from typing import Any
 
+import warnings
 import aiofiles
 import ujson
 from jinja2 import Environment
@@ -37,6 +38,32 @@ class ihaSanic(Sanic):
         if re.match(self._url_regex, url_to_validate) is None:
             return False
         return True
+
+    async def announce_discord(self, request_ip, uploaded_url, is_admin, is_shortlink=False):
+        webhook_url = self.config.get("DISCORD_WEBHOOK", "")
+        if not webhook_url:
+            return
+        try:
+            import aiohttp
+        except ImportError:
+            warnings.warn(
+                "DISCORD_WEBHOOK is provided but aiohttp is not installed, ignoring...", ResourceWarning
+            )
+            return
+        content_msg = [
+            f"Uploader IP: **{request_ip}**",
+            f"{'Short Link' if is_shortlink else 'File'}: **<{uploaded_url}>**",
+            f"Is Admin? **{'Yes' if is_admin else 'No'}.**",
+        ]
+        json_params = {
+            "content": "\n".join(content_msg),
+            "avatar_url": "https://p.ihateani.me/favicon.png",
+            "username": "ihaCDN Notificator.",
+            "tts": False,
+        }
+        async with aiohttp.ClientSession() as sesi:
+            async with sesi.post(webhook_url, data=json_params) as resp:
+                await resp.json()
 
 
 async def read_files(fpath, dont_convert=False):

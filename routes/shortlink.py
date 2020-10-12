@@ -24,8 +24,11 @@ class ShortlinkAPI(HTTPMethodView):
                     break
             return filename
 
+        user_ip = request.remote_addr or request.ip
+
         short_link = await _generate_filename()
         final_url = "https" if appc["HTTPS_MODE"] else "http"
         final_url += f"://{appc['HOST_NAME']}/{short_link}"
         await app.dcache.set(short_link, {"type": "short", "target": url_data})
+        await app.announce_discord(user_ip, final_url, False, True)
         return text(final_url)

@@ -56,6 +56,8 @@ class UploadAPI(HTTPMethodView):
                     break
             return filename
 
+        user_ip = request.remote_addr or request.ip
+
         filename = await _generate_filename()
         file_name_type = upload_file.name.split(".")[-1]
         is_valid_type, invalid_type_data = valid_file_type(
@@ -88,4 +90,5 @@ class UploadAPI(HTTPMethodView):
                 "mimetype": code_type if is_code else upload_file.type,
             },
         )
+        await app.announce_discord(user_ip, final_url, is_admin, False)
         return text(final_url)
