@@ -32,11 +32,11 @@ class ihateanimeCache:
         :return: result of function execution
         :rtype: Any
         """
-        logger.info("[ihaCache:execute] Executing function!")
+        logger.debug("[ihaCache:execute] Executing function!")
         wrapped_func = partial(func, *args, **kwargs)
         fut = self.loop.run_in_executor(None, wrapped_func)
         res = await fut
-        logger.info("[ihaCache:execute] Function executed!")
+        logger.debug("[ihaCache:execute] Function executed!")
         return res
 
     async def get(self, key: str) -> Union[None, str, bytes]:
