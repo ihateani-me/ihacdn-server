@@ -44,7 +44,7 @@ class UploadAPI(HTTPMethodView):
         is_admin = False
         if password == app.config["ADMIN_PASSWORD"]:
             is_admin = True
-        mimetype = bmagic.from_buffer(upload_file.body[:2048])
+        mimetype = bmagic.from_buffer(upload_file.body)
 
         async def _generate_filename():
             while True:
