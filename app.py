@@ -21,6 +21,10 @@ settings = dict(
     UPLOAD_PATH=os.path.join(app_cwd, "uploads"),
     ADMIN_PASSWORD="MODIFY_THIS",
     FILENAME_LENGTH=8,
+    # File retention settings
+    ENABLE_FILE_RETENTION=True,  # If enabled, file will be deleted with calculation.
+    FILE_RETENTION_MIN_AGE=30,  # Minimum days for file retention.
+    FILE_RETENTION_MAX_AGE=180,  # Maximum days for file retention.
     # Storage settings
     FILESIZE_LIMIT=50 * 1024,  # 50mb (in kb.)
     FILESIZE_LIMIT_ADMIN=None,  # Set to None for no limit.
@@ -66,6 +70,10 @@ async def initiated_application(app: ihaSanic, loop):
     if not os.path.isdir(app.config["UPLOAD_PATH"]):
         logger.info("[beforestart] creating upload folder.")
         os.makedirs(app.config["UPLOAD_PATH"])
+    app.config.update(dict(UPLOAD_PATH_ADMIN=app.config["UPLOAD_PATH"].rstrip("/").rstrip("\\") + "_admin"))
+    if not os.path.isdir(app.config["UPLOAD_PATH_ADMIN"]):
+        logger.info("[beforestart] creating persistence/admin upload folder.")
+        os.makedirs(app.config["UPLOAD_PATH_ADMIN"])
 
 
 # static_file_bp = Blueprint("uploads", url_prefix="/")

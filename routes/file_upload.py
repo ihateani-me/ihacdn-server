@@ -73,6 +73,8 @@ class UploadAPI(HTTPMethodView):
         final_url = "https" if appc["HTTPS_MODE"] else "http"
         final_url += f"://{appc['HOST_NAME']}/{filename}.{file_name_type}"
         file_path = os.path.join(appc["UPLOAD_PATH"], f"{filename}.{file_name_type}")
+        if is_admin:
+            file_path = os.path.join(appc["UPLOAD_PATH_ADMIN"], f"{filename}.{file_name_type}")
         code_type = file_name_type
         if not is_code:
             await write_files(upload_file.body, file_path)

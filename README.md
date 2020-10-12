@@ -15,6 +15,8 @@ A simple file hosting using Sanic framework.<br>
 - Shortlink generation support.
 - You don't need the extension to access your files/code.
 - You could manually set what hljs should use by adding extension to the url.
+- [File retention](#file-retention) support<br>
+Formula: `min_days + (-max_days + min_days) * (file_size / filesize_limit - 1) ** 5`
 
 ## Using the filehosting.
 There's 2 POST endpoint:
@@ -68,6 +70,10 @@ settings = dict(
     UPLOAD_PATH=os.path.join(app_cwd, "uploads"),
     ADMIN_PASSWORD="MODIFY_THIS",
     FILENAME_LENGTH=8,
+    # File retention settings
+    ENABLE_FILE_RETENTION=True,  # If enabled, file will be deleted with calculation.
+    FILE_RETENTION_MIN_AGE=30,  # Minimum days for file retention.
+    FILE_RETENTION_MAX_AGE=180,  # Maximum days for file retention.
     # Storage settings
     FILESIZE_LIMIT=50 * 1024,  # 50mb (in kb.)
     FILESIZE_LIMIT_ADMIN=None,  # Set to None for no limit.
@@ -94,6 +100,9 @@ Explanation:
 - **FILESIZE_LIMIT_ADMIN**: upload size limit (in kilobytes) for someone using admin password (can be set to `None` for no limit.)
 - **BLACKLISTED_EXTENSION**: Blacklisted extension.
 - **BLACKLISTED_CONTENT_TYPE**: Blacklisted content-type.
+
+## File Retention
+[To be written.]
 
 ## Deploying on Nginx.
 
