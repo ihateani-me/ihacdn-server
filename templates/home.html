@@ -129,6 +129,16 @@
         <br>
         <code id="shorten_info"></code>
     </form>
+    {% if ENABLE_FILE_RETENTION %}
+    <br>
+    <code>
+        <b>File Retention:</b><br>
+        &nbsp;&nbsp;Minimum Days: <b>{{ FILE_RETENTION_MIN_AGE }} days</b><br>
+        &nbsp;&nbsp;Maximum Days: <b>{{ FILE_RETENTION_MAX_AGE }} days</b><br>
+        &nbsp;&nbsp;Formula: <b>min_days + (-max_days + min_days) * (file_size / filesize_limit - 1) ** 5</b><br>
+        &nbsp;&nbsp;File size are in bytes.
+    </code>
+    {% endif %}
     <script>
         const upload_form = document.getElementById("upload_form"),
             upload_info = document.getElementById("upload_info"),

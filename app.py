@@ -243,6 +243,7 @@ async def populate_db(request):
 
     logger.info("[populate] collecting data...")
     globbed_files = glob.glob(os.path.join(app.config["UPLOAD_PATH"], "*"))
+    globbed_files.extend(glob.glob(os.path.join(app.config["UPLOAD_PATH_ADMIN"], "*")))
     logger.info(f"[populate] total data: {len(globbed_files)}...")
     bmagic = magic.Magic(mime=True)
     for fpath in globbed_files:
@@ -261,7 +262,6 @@ async def populate_db(request):
             new_fpath = os.path.join(app.config["UPLOAD_PATH"], new_fn)
             os.rename(fpath, new_fpath)
             fpath = new_fpath
-        logger.info(f"[populate] adding: {file_name} ({fpath})")
         await app.dcache.set(
             file_name,
             {
@@ -284,6 +284,9 @@ async def home_page(request):
         ),
         BLACKLIST_EXTENSION=app.config.BLACKLISTED_EXTENSION,
         BLACKLIST_CTYPES=app.config.BLACKLISTED_CONTENT_TYPE,
+        ENABLE_FILE_RETENTION=app.config.ENABLE_FILE_RETENTION,
+        FILE_RETENTION_MIN_AGE=app.config.FILE_RETENTION_MAX_AGE,
+        FILE_RETENTION_MAX_AGE=app.config.FILE_RETENTION_MIN_AGE,
     )
 
 
