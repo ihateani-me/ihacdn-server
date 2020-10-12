@@ -167,7 +167,14 @@
                 .then(response => response.text())
                 .then(data => {
                     upload_info.innerText = "";
-                    upload_info.innerHTML = `<a href="${data}">${data}</a>`;
+                    if (data.startsWith("http")) {
+                        upload_info.innerHTML = `<a href="${data}">${data}</a>`;
+                    } else {
+                        upload_info.innerText = data;
+                    }
+                })
+                .catch(error => {
+                    upload_info.innerText = error;
                 });
             };
         });
@@ -194,7 +201,14 @@
                     .then(response => response.text())
                     .then(data => {
                         shorten_info.innerText = "";
-                        shorten_info.innerHTML = `<a href="${data}">${data}</a>`;
+                        if (data.startsWith("http")) {
+                            shorten_info.innerHTML = `<a href="${data}">${data}</a>`;
+                        } else {
+                            shorten_info.innerText = data;
+                        }
+                    })
+                    .catch(error => {
+                        shorten_info.innerText = error;
                     });
                 };
             };
